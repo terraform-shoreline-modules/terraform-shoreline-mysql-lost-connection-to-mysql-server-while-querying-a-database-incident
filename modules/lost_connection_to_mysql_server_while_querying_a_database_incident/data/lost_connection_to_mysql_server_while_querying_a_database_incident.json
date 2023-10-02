@@ -1,0 +1,202 @@
+{
+  "name": "lost_connection_to_mysql_server_while_querying_a_database_incident",
+  "description": "This incident type occurs when there is a loss of connection to the MySQL server during the process of querying a database. This can happen due to various reasons such as network issues, server overload, or software errors. As a result, the query execution fails and users may experience disruptions in accessing data from the database. It is critical to resolve this issue promptly to avoid data loss or corruption.",
+  "params": [
+    {
+      "name": "MYSQL_USERNAME",
+      "value": ""
+    },
+    {
+      "name": "APPLICATION_SERVER_IP",
+      "value": ""
+    },
+    {
+      "name": "MYSQL_PASSWORD",
+      "value": ""
+    },
+    {
+      "name": "VALUE",
+      "value": ""
+    },
+    {
+      "name": "PREVIOUS_VALUE",
+      "value": ""
+    },
+    {
+      "name": "MYSQL_DATABASE_NAME",
+      "value": ""
+    },
+    {
+      "name": "DB_PORT",
+      "value": ""
+    },
+    {
+      "name": "MYSQL_SERVER_IP_ADDRESS",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Lost connection to MySQL server while querying a database incident.\nThis incident type occurs when there is a loss of connection to the MySQL server during the process of querying a database. This can happen due to various reasons such as network issues, server overload, or software errors. As a result, the query execution fails and users may experience disruptions in accessing data from the database. It is critical to resolve this issue promptly to avoid data loss or corruption."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if MySQL server is running"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl status mysql`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if MySQL server is listening on the correct port"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `sudo netstat -tulpn | grep 3306`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check MySQL server logs for errors"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `sudo tail -f /var/log/mysql/error.log`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check MySQL client logs for errors"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `sudo tail -f /var/log/mysql/mysql.log`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if there are any network issues"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `ping ${MYSQL_SERVER_IP_ADDRESS}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if there is enough disk space available"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `df -h`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if there are any issues with the database tables"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `mysql -u ${MYSQL_USERNAME} -p ${MYSQL_PASSWORD} -e \"USE ${MYSQL_DATABASE_NAME}; SHOW TABLES;\"`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if there are any locked tables"
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `mysql -u ${MYSQL_USERNAME} -p ${MYSQL_PASSWORD} -e \"SHOW OPEN TABLES WHERE In_use > 0;\"`"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if there are any long-running queries"
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `mysql -u ${MYSQL_USERNAME} -p ${MYSQL_PASSWORD} -e \"SHOW FULL PROCESSLIST;\"`"
+    },
+    {
+      "name": "cell_20",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the network connectivity between the application server and the database server. Make sure there are no firewall rules or network issues blocking the connection."
+    },
+    {
+      "name": "cell_21",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_sereachability_check($APPLICATION_SERVER_IP, $MYSQL_SERVER_IP_ADDRESS)"
+    },
+    {
+      "name": "cell_22",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## The network connection to the MySQL server may have been disrupted or lost."
+    },
+    {
+      "name": "cell_23",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_mysql_connection_test($MYSQL_USERNAME, $MYSQL_PASSWORD, $MYSQL_DATABASE_NAME, $MYSQL_SERVER_IP_ADDRESS)"
+    },
+    {
+      "name": "cell_24",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Increase the timeout value for the connection to the MySQL server to allow for longer queries to complete. This can be done in the application code or in the MySQL server configuration."
+    },
+    {
+      "name": "cell_25",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_update_mysql_timeout($VALUE, $PREVIOUS_VALUE)"
+    }
+  ]
+}
